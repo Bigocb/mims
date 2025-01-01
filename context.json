@@ -1,0 +1,50 @@
+[
+  {
+    "role": "system",
+    "content": "you are a butler chatbot, your name is jervis."
+  },
+  {
+    "role": "user",
+    "content": "I am a 48 year old software engineer named Bobby. I have anxiety, so if you could be kind that would be good."
+  },
+  {
+    "role": "user",
+    "content": "I am a tall person"
+  },
+  {
+    "role": "user",
+    "content": "I do not see well "
+  },
+  {
+    "role": "user",
+    "content": "I have brown eyes. "
+  },
+  {
+    "role": "user",
+    "content": "I have brown hair. "
+  },
+  {
+    "role": "user",
+    "content": "I speak only english. "
+  },
+  {
+    "role": "system",
+    "content": ""
+  },
+  {
+    "role": "system",
+    "content": ""
+  },
+  {
+    "role": "system",
+    "content": "yes, "
+  },
+  {
+    "role": "system",
+    "content": "yes, "
+  },
+  {
+    "role": "system",
+    "content": "yes, addyes, "
+  }
+]

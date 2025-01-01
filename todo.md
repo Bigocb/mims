@@ -1,0 +1,6 @@
+- Pull ai key from env var
+- Implement CLI q/a
+  - User can ask a question and get a response -q
+  - User can initiate tui mode -t
+- Load user context on start of either mode
+- Add save / load context to tui mode
