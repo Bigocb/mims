@@ -21,7 +21,7 @@ Mims will be a command-line assistant built in Go for developers.
   `mims research -topic "who were the Mayans"`
 
   Response:
-  `The Maya civilization was a Mesoamerican civilization that flourished in present-day Mexico, Guatemala, Belize, Honduras, and El Salvador. The Maya civilization is known for its advancements in art, architecture, mathematics, astronomy, and writing systems. They developed a complex calendar system, built impressive cities with pyramids and temples, and created intricate artwork and sculptures. The Maya were also known for their achievements in agriculture, cultivating crops such as maize, beans, and squash.`
+  `The Mayan civilization was a Mesoamerican civilization that flourished in present-day Mexico, Guatemala, Belize, Honduras, and El Salvador. The Maya civilization is known for its advancements in art, architecture, mathematics, astronomy, and writing systems. They developed a complex calendar system, built impressive cities with pyramids and temples, and created intricate artwork and sculptures. The Maya were also known for their achievements in agriculture, cultivating crops such as maize, beans, and squash.`
 
 - **chat**: Opens an interactive terminal session with Mims, where you can engage in real-time conversations and get assistance.
 
