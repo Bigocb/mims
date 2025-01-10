@@ -1,5 +1,3 @@
-# Mims: GenAI Command Line Assistant
-
 ## Overview
 Mims is a command-line assistant built in Go for developers. It offers two modes of operation: **CLI** for quick tasks and **TUI** for an interactive, text-based interface. It integrates with GenAI and productivity tools like Jira, assisting developers with tasks such as project management, code review, and Kubernetes operations.
 
