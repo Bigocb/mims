@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type GptResponse struct {
+type LLMResponse struct {
 	Summary string
 	Details string
 }
@@ -24,7 +24,7 @@ func cleanJSONResponse(response string) string {
 	return strings.TrimSpace(response)
 }
 
-func QueryOpenAi(request string) string {
+func QueryLLM(request string) string {
 	// Load API key from environment variable
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
@@ -85,7 +85,7 @@ func QueryOpenAi(request string) string {
 	// Clean the JSON response
 	cleanedJSON := cleanJSONResponse(response)
 
-	var result GptResponse
+	var result LLMResponse
 	err = json.Unmarshal([]byte(cleanedJSON), &result)
 	if err != nil {
 		log.Printf("Warning: Failed to parse analysis JSON for topic '%s': %v", topic, err)

@@ -13,7 +13,7 @@ import (
 func buildQuery(question string) string {
 
 	var resp string
-	resp = external.QueryOpenAi(question)
+	resp = external.QueryLLM(question)
 	return resp
 }
 
