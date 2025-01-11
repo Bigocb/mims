@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/sashabaranov/go-openai"
 	"jervis/external"
 	"jervis/tui"
 	"log"
@@ -11,40 +10,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-func buildQuery(question string) openai.ChatCompletionResponse {
-	message := []openai.ChatCompletionMessage{
-		openai.ChatCompletionMessage{
-			Role:    "system",
-			Content: "You are a helpful AI, named mim",
-		},
-	}
+func buildQuery(question string) string {
 
-	req := openai.ChatCompletionRequest{
-		Model:    openai.GPT3Dot5Turbo,
-		Messages: message,
-	}
-
-	req.Messages = append(req.Messages, openai.ChatCompletionMessage{
-		Role:    openai.ChatMessageRoleUser,
-		Content: question,
-	})
-
-	var resp openai.ChatCompletionResponse
-	resp = external.QueryOpenAi(req)
+	var resp string
+	resp = external.QueryOpenAi(question)
 	return resp
 }
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Website Lookup CLI"
-	app.Usage = "Let's you query IPs, CNAMEs, MX records and Name Servers!"
+	app.Name = ""
+	app.Usage = ""
 
 	// We'll be using the same flag for all our commands
 	// so we'll define it up here
 	myFlags := []cli.Flag{
 		cli.StringFlag{
-			Name:  "url",
-			Value: "tutorialedge.net",
+			Name:  "topic",
+			Value: "Please enter a topic",
 		},
 	}
 	var err error
@@ -64,7 +47,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				content := ns.Choices[0].Message.Content
+				content := ns
 				fmt.Println(content)
 				return nil
 			},
