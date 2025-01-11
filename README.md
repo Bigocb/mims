@@ -35,7 +35,7 @@ Mims will be a command-line assistant built in Go for developers.
 - **CLI Framework:** UrfaveCLI
 - **TUI Framework:** BubbleTea
 - **Storage:** BoltDB/Storm (local), MongoDB in K8s for optional scalability
-- **GenAI Integration:** Ollama, LocalAI
+- **GenAI Integration:** Ollama, LocalAI, using Gollm as an abstraction later for managing prompt building.
 - **NLP** Sumarizarion, tokenization, python service itilizing numpy
 
 ## Development Plan
