@@ -5,10 +5,10 @@ Mims will be a command-line assistant built in Go for developers.
 ## Planned Features
 - **CLI Mode:** Fast terminal commands for basic interactions.
 - **TUI Mode:** Interactive, structured interface with visual feedback.
-- **GenAI Assistance:** Chat-based help, project summaries, and code pairing. Choice of OpenAI or a Local Ollama server
+- **GenAI Assistance:** Chat-based help, project summaries, and code pairing. Choice of OpenAI or a Local Ollama server. Context based prompt engineering.
 - **Local Storage:** Save and search chat history for contextual insights.
 - **Workflow:** Update Kubernetes cluster resources, manage PRs, other operations tasks.
-
+- **Custom Model / Fine tunning from history: ** Long term
 ## Planned Modes of Operation
 - **CLI Mode:** Simple commands for quick tasks.
 - **TUI Mode:** Enhanced, multi-step workflows with visual elements for more complex operations.
