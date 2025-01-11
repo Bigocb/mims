@@ -5,7 +5,6 @@ package tui
 
 import (
 	"fmt"
-	"github.com/sashabaranov/go-openai"
 	"jervis/data"
 	"jervis/external"
 	"log"
@@ -103,26 +102,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			if strings.Contains(m.textarea.Value(), "Research:") {
-				message := []openai.ChatCompletionMessage{
-					openai.ChatCompletionMessage{
-						Role:    "system",
-						Content: "You are a helpful AI, named mim",
-					},
-				}
-
-				req := openai.ChatCompletionRequest{
-					Model:    openai.GPT3Dot5Turbo,
-					Messages: message,
-				}
-
-				req.Messages = append(req.Messages, openai.ChatCompletionMessage{
-					Role:    openai.ChatMessageRoleUser,
-					Content: m.textarea.Value(),
-				})
-
-				var resp openai.ChatCompletionResponse
-				resp = external.QueryOpenAi(req)
-				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp.Choices[0].Message.Content)
+				var resp string
+				resp = external.QueryLLM(m.textarea.Value())
+				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp)
 				m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			} else if strings.Contains(m.textarea.Value(), "Search:") {
 

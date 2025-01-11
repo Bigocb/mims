@@ -50,7 +50,7 @@ func main() {
 		if strings.Contains(s.Text(), "Research:") {
 
 			var resp string
-			resp = external.QueryOpenAi(requestText)
+			resp = external.QueryLLM(requestText)
 			// todo: Better response formatting
 			fmt.Printf("%s\n\n", resp)
 			fmt.Print("> ")
