@@ -9,6 +9,7 @@ Mims will be a command-line assistant built in Go for developers.
 - **Local Storage:** Save and search chat history for contextual insights.
 - **Workflow:** Update Kubernetes cluster resources, manage PRs, other operations tasks.
 - **Custom Model / Fine tunning from history: ** Long term
+
 ## Planned Modes of Operation
 - **CLI Mode:** Simple commands for quick tasks.
 - **TUI Mode:** Enhanced, multi-step workflows with visual elements for more complex operations.

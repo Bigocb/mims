@@ -1,0 +1,8 @@
+---
+name: GeneralTemplate
+description: A template for answering questions
+template: Provide a comprehensive summary of {{.Topic}}.
+Directives:
+  - Use 1clear and concise language
+  - Provide specific examples where appropriate
+  - There is no maximum length
