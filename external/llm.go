@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/teilomillet/gollm"
+	"github.com/teilomillet/gollm/llm"
 	"gopkg.in/yaml.v2"
 	"log"
 	"os"
@@ -12,11 +13,13 @@ import (
 	"time"
 )
 
+// LLMResponse object to help standardize output from various LLM tools
 type LLMResponse struct {
 	Summary string
 	Details string
 }
 
+// PromptTemplate used to map from template.yaml
 type PromptTemplate struct {
 	Name        string   `yaml:"name"`
 	Description string   `yaml:"description"`
@@ -24,8 +27,7 @@ type PromptTemplate struct {
 	Directives  []string `yaml:"directives"`
 }
 
-type PromptTemplates []PromptTemplate
-
+// loadPromptTemplates loads yaml template(s) and maps them to PromptTemplate struct
 func loadPromptTemplates() (PromptTemplate, error) {
 	file, err := os.Open("templates.yaml")
 	if err != nil {
@@ -42,23 +44,12 @@ func loadPromptTemplates() (PromptTemplate, error) {
 	return promptTemplates, nil
 }
 
-// cleanJSONResponse removes markdown code block delimiters and trims whitespace
-func cleanJSONResponse(response string) string {
-	response = strings.TrimSpace(response)
-	response = strings.TrimPrefix(response, "```json")
-	response = strings.TrimSuffix(response, "```")
-	return strings.TrimSpace(response)
-}
+func buildPrompt(request string) *llm.Prompt {
 
-func QueryLLM(request string) string {
-
-	// Load API key from environment variable
-	os.Setenv("OPENAI_API_KEY", "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")
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
-		log.Fatalf("OPENAI_API_KEY environment variable is not set")
+	topic := strings.Replace(request, "Research", "", -1)
+	data := map[string]interface{}{
+		"Topic": topic,
 	}
-
 	// todo: Right now loading a single default template. We want choice eventually
 	template, err := loadPromptTemplates()
 	if err != nil {
@@ -66,23 +57,6 @@ func QueryLLM(request string) string {
 		fmt.Printf("Response:\n%s\n", err)
 	}
 	fmt.Printf("Response:\n%s\n", template)
-
-	// todo: load values from config
-	// Create the LLM instance.
-	llm, err := gollm.NewLLM(
-		gollm.SetProvider("openai"),
-		gollm.SetModel("gpt-3.5-turbo-0125"),
-		gollm.SetAPIKey(apiKey),
-		gollm.SetMaxTokens(1000),
-		gollm.SetMaxRetries(3),
-		gollm.SetRetryDelay(time.Second*2),
-		gollm.SetLogLevel(gollm.LogLevelInfo),
-	)
-	if err != nil {
-		log.Fatalf("Failed to create LLM: %v", err)
-	}
-
-	ctx := context.Background()
 
 	// Create our prompt template to format our expectations and response
 	promptTemp := gollm.NewPromptTemplate(
@@ -99,20 +73,60 @@ func QueryLLM(request string) string {
 		),
 	)
 
-	// Trim research from our input. Temporary for POC
-	topic := strings.Replace(request, "Research", "", -1)
-	data := map[string]interface{}{
-		"Topic": topic,
-	}
-
 	// Build prompt object
 	prompt, err := promptTemp.Execute(data)
 	if err != nil {
 		log.Fatalf("Failed to execute template: %v", err)
 	}
 
+	return prompt
+}
+
+// cleanJSONResponse removes markdown code block delimiters and trims whitespace. Useful for some AI responses                                          .
+func cleanJSONResponse(response string) string {
+	response = strings.TrimSpace(response)
+	response = strings.TrimPrefix(response, "```json")
+	response = strings.TrimSuffix(response, "```")
+	return strings.TrimSpace(response)
+}
+
+func buildCLLM() gollm.LLM {
+	// Load API key from environment variable
+	os.Setenv("OPENAI_API_KEY", "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")
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	if apiKey == "" {
+		log.Fatalf("OPENAI_API_KEY environment variable is not set")
+	}
+
+	// todo: load values from config. Helper functions. Choose your model. Hmm, Ollamma?
+	// Create the LLM instance.
+	llm, err := gollm.NewLLM(
+		gollm.SetProvider("openai"),
+		gollm.SetModel("gpt-3.5-turbo-0125"),
+		gollm.SetAPIKey(apiKey),
+		gollm.SetMaxTokens(1000),
+		gollm.SetMaxRetries(3),
+		gollm.SetRetryDelay(time.Second*2),
+		gollm.SetLogLevel(gollm.LogLevelInfo),
+	)
+	if err != nil {
+		log.Fatalf("Failed to create LLM: %v", err)
+	}
+
+	return llm
+}
+
+// QueryLLM responsible for building the request and sending
+func QueryLLM(request string) string {
+
+	ctx := context.Background()
+
+	// Build prompt
+	prompt := buildPrompt(request)
+
+	llmClient := buildCLLM()
 	// Generate a response from our LLM
-	response, err := llm.Generate(ctx, prompt)
+	response, err := llmClient.Generate(ctx, prompt)
 	if err != nil {
 		log.Fatalf("Failed to generate text: %v", err)
 	}
@@ -124,7 +138,7 @@ func QueryLLM(request string) string {
 	var result LLMResponse
 	err = json.Unmarshal([]byte(cleanedJSON), &result)
 	if err != nil {
-		log.Printf("Warning: Failed to parse analysis JSON for topic '%s': %v", topic, err)
+		log.Printf("Warning: Failed to parse analysis JSON for topic : %v", err)
 		log.Printf("Raw response: %s", cleanedJSON)
 	}
 
