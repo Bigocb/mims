@@ -1,4 +1,4 @@
-package external
+package llm
 
 import (
 	"context"
@@ -33,7 +33,13 @@ func loadPromptTemplates() (PromptTemplate, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	// Decode yaml to PromptTemplate struct
 	var promptTemplates PromptTemplate
@@ -44,6 +50,7 @@ func loadPromptTemplates() (PromptTemplate, error) {
 	return promptTemplates, nil
 }
 
+// buildPrompt responsible for building the prompt to be sent to the LLM
 func buildPrompt(request string) *llm.Prompt {
 
 	topic := strings.Replace(request, "Research", "", -1)
@@ -53,8 +60,8 @@ func buildPrompt(request string) *llm.Prompt {
 	// todo: Right now loading a single default template. We want choice eventually
 	template, err := loadPromptTemplates()
 	if err != nil {
-		log.Fatal(err)
 		fmt.Printf("Response:\n%s\n", err)
+		log.Fatal(err)
 	}
 	fmt.Printf("Response:\n%s\n", template)
 
@@ -90,9 +97,14 @@ func cleanJSONResponse(response string) string {
 	return strings.TrimSpace(response)
 }
 
-func buildCLLM() gollm.LLM {
+// buildClient builds the LLM client needed based on general config or override
+func buildClient() gollm.LLM {
 	// Load API key from environment variable
-	os.Setenv("OPENAI_API_KEY", "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")
+	err := os.Setenv("OPENAI_API_KEY", "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")
+	if err != nil {
+		return nil
+	}
+
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("OPENAI_API_KEY environment variable is not set")
@@ -100,7 +112,7 @@ func buildCLLM() gollm.LLM {
 
 	// todo: load values from config. Helper functions. Choose your model. Hmm, Ollamma?
 	// Create the LLM instance.
-	llm, err := gollm.NewLLM(
+	llmClient, err := gollm.NewLLM(
 		gollm.SetProvider("openai"),
 		gollm.SetModel("gpt-3.5-turbo-0125"),
 		gollm.SetAPIKey(apiKey),
@@ -113,18 +125,18 @@ func buildCLLM() gollm.LLM {
 		log.Fatalf("Failed to create LLM: %v", err)
 	}
 
-	return llm
+	return llmClient
 }
 
-// QueryLLM responsible for building the request and sending
-func QueryLLM(request string) string {
+// Query responsible for building the request and sending
+func Query(request string) string {
 
 	ctx := context.Background()
 
 	// Build prompt
 	prompt := buildPrompt(request)
 
-	llmClient := buildCLLM()
+	llmClient := buildClient()
 	// Generate a response from our LLM
 	response, err := llmClient.Generate(ctx, prompt)
 	if err != nil {

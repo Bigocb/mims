@@ -6,7 +6,7 @@ package tui
 import (
 	"fmt"
 	"jervis/data"
-	"jervis/external"
+	"jervis/llm"
 	"log"
 	"strings"
 
@@ -103,7 +103,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			if strings.Contains(m.textarea.Value(), "Research:") {
 				var resp string
-				resp = external.QueryLLM(m.textarea.Value())
+				resp = llm.Query(m.textarea.Value())
 				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp)
 				m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			} else if strings.Contains(m.textarea.Value(), "Search:") {

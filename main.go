@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"jervis/data"
-	"jervis/external"
+	"jervis/llm"
 	"os"
 	"strconv"
 	"strings"
@@ -50,8 +50,7 @@ func main() {
 		if strings.Contains(s.Text(), "Research:") {
 
 			var resp string
-			resp = external.QueryLLM(requestText)
-			// todo: Better response formatting
+			resp = llm.Query(requestText)
 			fmt.Printf("%s\n\n", resp)
 			fmt.Print("> ")
 		}

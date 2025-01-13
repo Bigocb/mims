@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"jervis/external"
+	"jervis/llm"
 	"jervis/tui"
 	"log"
 	"os"
@@ -13,7 +13,7 @@ import (
 func buildQuery(question string) string {
 
 	var resp string
-	resp = external.QueryLLM(question)
+	resp = llm.Query(question)
 	return resp
 }
 
