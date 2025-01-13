@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/teilomillet/gollm"
+	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 	"strings"
@@ -16,6 +17,31 @@ type LLMResponse struct {
 	Details string
 }
 
+type PromptTemplate struct {
+	Name        string   `yaml:"name"`
+	Description string   `yaml:"description"`
+	Template    string   `yaml:"template"`
+	Directives  []string `yaml:"directives"`
+}
+
+type PromptTemplates []PromptTemplate
+
+func loadPromptTemplates() (PromptTemplate, error) {
+	file, err := os.Open("templates.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Decode yaml to PromptTemplate struct
+	var promptTemplates PromptTemplate
+	if err := yaml.NewDecoder(file).Decode(&promptTemplates); err != nil {
+		log.Fatal(err)
+		return promptTemplates, err
+	}
+	return promptTemplates, nil
+}
+
 // cleanJSONResponse removes markdown code block delimiters and trims whitespace
 func cleanJSONResponse(response string) string {
 	response = strings.TrimSpace(response)
@@ -25,13 +51,24 @@ func cleanJSONResponse(response string) string {
 }
 
 func QueryLLM(request string) string {
+
 	// Load API key from environment variable
+	os.Setenv("OPENAI_API_KEY", "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")
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("OPENAI_API_KEY environment variable is not set")
 	}
 
-	// Create the LLM instance
+	// todo: Right now loading a single default template. We want choice eventually
+	template, err := loadPromptTemplates()
+	if err != nil {
+		log.Fatal(err)
+		fmt.Printf("Response:\n%s\n", err)
+	}
+	fmt.Printf("Response:\n%s\n", template)
+
+	// todo: load values from config
+	// Create the LLM instance.
 	llm, err := gollm.NewLLM(
 		gollm.SetProvider("openai"),
 		gollm.SetModel("gpt-3.5-turbo-0125"),
@@ -47,12 +84,11 @@ func QueryLLM(request string) string {
 
 	ctx := context.Background()
 
-	// TODO: Externalize from this file. We want to have multiple templates for choice.
 	// Create our prompt template to format our expectations and response
-	template := gollm.NewPromptTemplate(
-		"GeneralTemplate",
-		"A template for answering questions",
-		"Provide a comprehensive summary of {{.Topic}}.",
+	promptTemp := gollm.NewPromptTemplate(
+		template.Name,
+		template.Description,
+		template.Template,
 		gollm.WithPromptOptions(
 			gollm.WithDirectives(
 				"Use clear and concise language",
@@ -70,7 +106,7 @@ func QueryLLM(request string) string {
 	}
 
 	// Build prompt object
-	prompt, err := template.Execute(data)
+	prompt, err := promptTemp.Execute(data)
 	if err != nil {
 		log.Fatalf("Failed to execute template: %v", err)
 	}
