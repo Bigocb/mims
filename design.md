@@ -128,6 +128,18 @@ _(Placeholder: A diagram showing CLI/TUI components, integration with Jira, GenA
     - **Storage Service:** Maintain a cache of Jira project data to minimize API calls.
 - Provide a Helm chart or Kubernetes manifest to deploy these services.
 
+### Architecture
+
+- Main logic to handle "business" logic.
+  - Process user input
+  - Determine workflow for request
+  - Execute workflow
+  - return result to CLI/TUI
+- Interface with CLI
+  - CLI and TUI should be responsible for taking in user input, proxying that data to the "brain", and
+    displaying the results.
+- Interface with TUI
+
 ---
 
 ## 6. Technology Choices
