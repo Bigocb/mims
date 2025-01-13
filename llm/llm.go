@@ -98,11 +98,6 @@ func cleanJSONResponse(response string) string {
 
 // buildClient builds the LLM client needed based on general config or override
 func buildClient() gollm.LLM {
-	// Load API key from environment variable
-	err := os.Setenv("OPENAI_API_KEY", "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")
-	if err != nil {
-		return nil
-	}
 
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
