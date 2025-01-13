@@ -10,7 +10,9 @@ require (
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/sashabaranov/go-openai v1.36.0
+	github.com/teilomillet/gollm v0.1.3
 	github.com/urfave/cli v1.22.16
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -46,7 +48,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	github.com/teilomillet/gollm v0.1.3 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
