@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-// LLMResponse object to help standardize output from various LLM tools
-type LLMResponse struct {
+// Response object to help standardize output from various LLM tools
+type Response struct {
 	Summary string
 	Details string
 }
@@ -29,7 +29,7 @@ type PromptTemplate struct {
 
 // loadPromptTemplates loads yaml template(s) and maps them to PromptTemplate struct
 func loadPromptTemplates() (PromptTemplate, error) {
-	file, err := os.Open("templates.yaml")
+	file, err := os.Open("./llm/templates/templates.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +63,6 @@ func buildPrompt(request string) *llm.Prompt {
 		fmt.Printf("Response:\n%s\n", err)
 		log.Fatal(err)
 	}
-	fmt.Printf("Response:\n%s\n", template)
 
 	// Create our prompt template to format our expectations and response
 	promptTemp := gollm.NewPromptTemplate(
@@ -129,7 +128,7 @@ func buildClient() gollm.LLM {
 }
 
 // Query responsible for building the request and sending
-func Query(request string) string {
+func Query(request string) Response {
 
 	ctx := context.Background()
 
@@ -142,17 +141,16 @@ func Query(request string) string {
 	if err != nil {
 		log.Fatalf("Failed to generate text: %v", err)
 	}
-	fmt.Printf("Response:\n%s\n", response)
 
 	// Clean the JSON response
 	cleanedJSON := cleanJSONResponse(response)
 
-	var result LLMResponse
+	var result Response
 	err = json.Unmarshal([]byte(cleanedJSON), &result)
 	if err != nil {
 		log.Printf("Warning: Failed to parse analysis JSON for topic : %v", err)
 		log.Printf("Raw response: %s", cleanedJSON)
 	}
 
-	return response
+	return result
 }

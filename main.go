@@ -47,11 +47,11 @@ func main() {
 			requestText = updateText
 		}
 
-		if strings.Contains(s.Text(), "Research:") {
-
-			var resp string
+		if strings.Contains(strings.ToLower(s.Text()), "research") {
+			var resp llm.Response
 			resp = llm.Query(requestText)
-			fmt.Printf("%s\n\n", resp)
+			fmt.Printf("Summary: %s\n\n", resp.Summary)
+			fmt.Printf("Details: %s\n\n", resp.Details)
 			fmt.Print("> ")
 		}
 

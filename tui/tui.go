@@ -1,8 +1,5 @@
 package tui
 
-// A simple program demonstrating the text area component from the Bubbles
-// component library.
-
 import (
 	"fmt"
 	"jervis/data"
@@ -102,9 +99,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			if strings.Contains(m.textarea.Value(), "Research:") {
-				var resp string
+				var resp llm.Response
 				resp = llm.Query(m.textarea.Value())
-				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp)
+				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp.Details)
 				m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			} else if strings.Contains(m.textarea.Value(), "Search:") {
 
