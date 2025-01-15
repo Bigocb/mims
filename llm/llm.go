@@ -19,6 +19,12 @@ type Response struct {
 	Details string
 }
 
+type Request struct {
+	Query   string
+	Model   string // future use for model selection.
+	Context string
+}
+
 // PromptTemplate used to map from template.yaml
 type PromptTemplate struct {
 	Name        string   `yaml:"name"`
@@ -51,13 +57,13 @@ func loadPromptTemplates() (PromptTemplate, error) {
 }
 
 // buildPrompt responsible for building the prompt to be sent to the LLM
-func buildPrompt(request string) *llm.Prompt {
+func buildPrompt(request Request) *llm.Prompt {
 
-	topic := strings.Replace(request, "Research", "", -1)
+	topic := strings.Replace(request.Query, "Research", "", -1)
 	data := map[string]interface{}{
 		"Topic": topic,
 	}
-	// todo: Right now loading a single default template. We want choice eventually
+	// todo: Right now loading a single default template. We want choice
 	template, err := loadPromptTemplates()
 	if err != nil {
 		fmt.Printf("Response:\n%s\n", err)
@@ -70,6 +76,7 @@ func buildPrompt(request string) *llm.Prompt {
 		template.Description,
 		template.Template,
 		gollm.WithPromptOptions(
+			gollm.WithContext(request.Context),
 			gollm.WithDirectives(
 				"Use clear and concise language",
 				"Provide specific examples where appropriate",
@@ -123,7 +130,7 @@ func buildClient() gollm.LLM {
 }
 
 // Query responsible for building the request and sending
-func Query(request string) Response {
+func Query(request Request) Response {
 
 	ctx := context.Background()
 
