@@ -100,6 +100,7 @@ func cleanJSONResponse(response string) string {
 	response = strings.TrimSpace(response)
 	response = strings.TrimPrefix(response, "```json")
 	response = strings.TrimSuffix(response, "```")
+	response = strings.Replace(response, "\n", "", -1)
 	return strings.TrimSpace(response)
 }
 
@@ -130,7 +131,7 @@ func buildClient() gollm.LLM {
 }
 
 // Query responsible for building the request and sending
-func Query(request Request) Response {
+func Query(request Request) (Response, error) {
 
 	ctx := context.Background()
 
@@ -154,5 +155,5 @@ func Query(request Request) Response {
 		log.Printf("Raw response: %s", cleanedJSON)
 	}
 
-	return result
+	return result, nil
 }

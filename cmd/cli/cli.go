@@ -3,53 +3,56 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli/v3"
 	"jervis/llm"
 	"log"
 	"os"
 )
 
-/*
-Current this is a very simple cli that takes in a question and returns an LLM response.
-*/
-
-// buildQuery
-func buildQuery(question string) string {
+// QueryLLM takes in a query string and sends to the LLM for processing.
+func QueryLLM(question string) (string, error) {
 	request := llm.Request{
 		Query: question,
 	}
 	var resp llm.Response
-	resp = llm.Query(request)
-	return resp.Details
+	resp, err := llm.Query(request)
+	if err != nil {
+		return "", fmt.Errorf("error querying LLM: %w", err)
+	}
+	return resp.Details, nil
 }
 
 func main() {
 
-	myFlags := []cli.Flag{
-		&cli.StringFlag{
-			Name:  "topic",
-			Value: "Please enter a topic",
-		},
-	}
+	var topic string
 
-	var err error
-	// we create our commands
 	cmd := &cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "topic",
+				Value:       "list of companies like solo.io",
+				Usage:       "Please enter a topic",
+				Destination: &topic,
+			},
+		},
 		Name:  "research",
 		Usage: "Get response from AI",
-		Flags: myFlags,
-		// the action, or code that will be executed when
-		// we execute our `ns` command
 		Action: func(ctx context.Context, c *cli.Command) error {
-			// a simple lookup function
-			test := c.String("topic")
-			fmt.Println(test)
-			ns := buildQuery(c.String("topic"))
-			if err != nil {
-				return err
+			if topic == "" {
+				return fmt.Errorf("topic is required")
 			}
-			content := ns
-			fmt.Println(content)
+
+			content, err := QueryLLM(topic)
+			if err != nil {
+				return fmt.Errorf("failed to query LLM: %w", err)
+			}
+
+			// Format and display the response
+			formattedResponse := text.WrapSoft(content, 150)
+			coloredResponse := text.Colors{text.FgBlue}.Sprint(formattedResponse)
+			fmt.Println(coloredResponse)
+
 			return nil
 		},
 	}
