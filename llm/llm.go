@@ -106,7 +106,7 @@ func cleanJSONResponse(response string) string {
 
 // buildClient builds the LLM client needed based on general config or override
 func buildClient() gollm.LLM {
-	os.Setenv("OPENAI_API_KEY", "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")
+
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("OPENAI_API_KEY environment variable is not set")
