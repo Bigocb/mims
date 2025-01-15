@@ -15,9 +15,10 @@ import (
 func main() {
 
 	fmt.Print("> ")
-
 	s := bufio.NewScanner(os.Stdin)
-	var searchResult []data.JervisData
+	var searchResult []data.MimsData
+	var contextString string
+	var lastResponse llm.Response
 	var err error
 	for s.Scan() {
 
@@ -29,7 +30,7 @@ func main() {
 
 			searchResult, err = data.Search(updMessage)
 			if err != nil {
-				fmt.Println("Error searching chats about:", err)
+				fmt.Println("Error searching chats about: ", updMessage, err)
 			}
 			fmt.Println("Here are the results: ")
 			fmt.Println(searchResult)
@@ -42,14 +43,20 @@ func main() {
 			if err != nil {
 				fmt.Println("Error marshalling search result:", err)
 			}
-			var updateText string
-			updateText = "These are previous responses on this topic. Please use these as context when responding. " + string(out)
-			requestText = updateText
+
+			contextString = "These are previous responses on this topic. Please use these as context when responding. " + string(out)
+			fmt.Println(contextString)
 		}
 
 		if strings.Contains(strings.ToLower(s.Text()), "research") {
+			request := llm.Request{
+				Query:   requestText,
+				Context: contextString,
+			}
+
 			var resp llm.Response
-			resp = llm.Query(requestText)
+			resp = llm.Query(request)
+			lastResponse = resp
 			fmt.Printf("Summary: %s\n\n", resp.Summary)
 			fmt.Printf("Details: %s\n\n", resp.Details)
 			fmt.Print("> ")
@@ -61,9 +68,10 @@ func main() {
 		if strings.Contains(s.Text(), "Save:") {
 			timeNow := time.Now().Unix()
 
-			messageObject := data.JervisData{
+			messageObject := data.MimsData{
 				Key:     strconv.FormatInt(timeNow, 10),
-				Message: requestText,
+				Summary: lastResponse.Summary,
+				Details: lastResponse.Details,
 			}
 
 			if err := data.Put(&messageObject); err != nil {

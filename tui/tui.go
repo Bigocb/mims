@@ -99,8 +99,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			if strings.Contains(m.textarea.Value(), "Research:") {
+				request := llm.Request{
+					Query: m.textarea.Value(),
+				}
 				var resp llm.Response
-				resp = llm.Query(m.textarea.Value())
+				resp = llm.Query(request)
 				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp.Details)
 				m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			} else if strings.Contains(m.textarea.Value(), "Search:") {
@@ -108,14 +111,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				updMessage := strings.ReplaceAll(m.textarea.Value(), "Search:", "")
 
 				var err error
-				var searchResult []data.JervisData
+				var searchResult []data.MimsData
 				searchResult, err = data.Search(updMessage)
 				if err != nil {
 					fmt.Println("Error searching chats about:", err)
 				}
 				if len(searchResult) != 0 {
 					fmt.Println("No results found")
-					m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+searchResult[0].Message)
+					m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+searchResult[0].Details)
 				} else {
 					m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+"No results found")
 				}

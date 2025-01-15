@@ -15,8 +15,11 @@ Current this is a very simple cli that takes in a question and returns an LLM re
 
 // buildQuery
 func buildQuery(question string) string {
+	request := llm.Request{
+		Query: question,
+	}
 	var resp llm.Response
-	resp = llm.Query(question)
+	resp = llm.Query(request)
 	return resp.Details
 }
 
