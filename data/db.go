@@ -1,39 +1,46 @@
 package data
 
 import (
-	"fmt"
 	"github.com/asdine/storm/v3"
 	"github.com/asdine/storm/v3/q"
+	"jervis/utils"
 )
 
-type JervisData struct {
+var log = utils.Log
+
+type MimsData struct {
 	ID      int `storm:"id,increment"`
 	Key     string
-	Message string `storm:"index"`
+	Details string `storm:"index"`
+	Summary string `storm:"index"`
 }
 
 func Open(path string) (*storm.DB, error) {
 	db, err := storm.Open(path)
 	if err != nil {
+		log.Error("Error opening database:", err)
 		return nil, err
 	}
 
 	return db, nil
 }
 
-func Put(message *JervisData) error {
+func Put(message *MimsData) error {
 	db, err := Open("content.db")
 	if err != nil {
+		log.Error("Error opening database:", err)
 		return err
 	}
 
-	err = db.Init(JervisData{})
+	err = db.Init(MimsData{})
 	if err != nil {
+		log.Error("Error opening database:", err)
 		return err
 	}
 
 	err = db.Save(message)
 	if err != nil {
+		log.Error("Error saving data to db:", err)
 		return err
 	}
 
@@ -41,16 +48,20 @@ func Put(message *JervisData) error {
 	return nil
 }
 
-func Search(searchTerms string) ([]JervisData, error) {
+func Search(searchTerms string) ([]MimsData, error) {
+
 	db, err := Open("content.db")
 	if err != nil {
+		log.Error("Error opening database:", err)
 		return nil, err
 	}
-	fmt.Println("Searching ", searchTerms)
-	var messages []JervisData
-	err = db.Select(q.Re("Message", searchTerms)).Find(&messages)
+
+	var messages []MimsData
+	err = db.Select(q.Re("Details", "^.*"+searchTerms+".*$")).Find(&messages)
 	if err != nil {
+		log.Info("No results found for:", searchTerms)
 		return nil, err
 	}
+
 	return messages, nil
 }
