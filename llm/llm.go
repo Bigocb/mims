@@ -100,12 +100,13 @@ func cleanJSONResponse(response string) string {
 	response = strings.TrimSpace(response)
 	response = strings.TrimPrefix(response, "```json")
 	response = strings.TrimSuffix(response, "```")
+	response = strings.Replace(response, "\n", "", -1)
 	return strings.TrimSpace(response)
 }
 
 // buildClient builds the LLM client needed based on general config or override
 func buildClient() gollm.LLM {
-
+	os.Setenv("OPENAI_API_KEY", "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")
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("OPENAI_API_KEY environment variable is not set")
@@ -130,7 +131,7 @@ func buildClient() gollm.LLM {
 }
 
 // Query responsible for building the request and sending
-func Query(request Request) Response {
+func Query(request Request) (Response, error) {
 
 	ctx := context.Background()
 
@@ -154,5 +155,5 @@ func Query(request Request) Response {
 		log.Printf("Raw response: %s", cleanedJSON)
 	}
 
-	return result
+	return result, nil
 }

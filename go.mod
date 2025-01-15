@@ -9,6 +9,8 @@ require (
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/jedib0t/go-pretty/v6 v6.6.5
+	github.com/k0kubun/pp/v3 v3.4.1
 	github.com/teilomillet/gollm v0.1.3
 	github.com/urfave/cli/v3 v3.0.0-beta1
 	gopkg.in/yaml.v2 v2.4.0
@@ -34,6 +36,7 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
