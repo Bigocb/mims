@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli/v3"
+	"jervis/core"
 	"jervis/llm"
 	"log"
 	"os"
 )
+
+// interaction object for a given session
+var interaction core.Interaction
 
 // QueryLLM takes in a query string and sends to the LLM for processing.
 func QueryLLM(question string) (string, error) {
@@ -25,39 +29,74 @@ func QueryLLM(question string) (string, error) {
 
 func main() {
 
-	var topic string
-
 	cmd := &cli.Command{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "topic",
-				Value:       "list of companies like solo.io",
-				Usage:       "Please enter a topic",
-				Destination: &topic,
-			},
-		},
-		Name:  "research",
+		Name:  "mims",
 		Usage: "Get response from AI",
-		Action: func(ctx context.Context, c *cli.Command) error {
-			if topic == "" {
-				return fmt.Errorf("topic is required")
-			}
-
-			content, err := QueryLLM(topic)
-			if err != nil {
-				return fmt.Errorf("failed to query LLM: %w", err)
-			}
-
-			// Format and display the response
-			formattedResponse := text.WrapSoft(content, 150)
-			coloredResponse := text.Colors{text.FgBlue}.Sprint(formattedResponse)
-			fmt.Println(coloredResponse)
-
-			return nil
+		Commands: []*cli.Command{
+			&cli.Command{
+				Name:    "ponder",
+				Aliases: []string{"p", "pond"},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "topic",
+						Aliases:     []string{"top", "t"},
+						Value:       "",
+						Usage:       "Please enter a topic",
+						Destination: &interaction.CurrentRequest,
+					},
+				},
+				Category: "LLM",
+				Action:   ponder,
+			},
+			&cli.Command{
+				Name:    "keep",
+				Aliases: []string{"k"},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "user",
+						Aliases:     []string{"u"},
+						Value:       "",
+						Usage:       "Enter what you want to keep",
+						Destination: &interaction.CurrentRequest,
+					},
+					&cli.StringFlag{
+						Name:        "last",
+						Aliases:     []string{"l"},
+						Value:       "",
+						Usage:       "Store the previous response for good measure",
+						Destination: &interaction.CurrentRequest,
+					},
+				},
+				Category: "Storage",
+				Action:   keep,
+			},
 		},
 	}
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func keep(ctx context.Context, c *cli.Command) error {
+	fmt.Print("hello:" + interaction.CurrentRequest)
+	return nil
+}
+
+func ponder(ctx context.Context, c *cli.Command) error {
+	if interaction.CurrentRequest == "" {
+		return fmt.Errorf("topic is required")
+	}
+
+	content, err := QueryLLM(interaction.CurrentRequest)
+	if err != nil {
+		return fmt.Errorf("failed to query LLM: %w", err)
+	}
+
+	// Format and display the response
+	formattedResponse := text.WrapSoft(content, 150)
+	coloredResponse := text.Colors{text.FgBlue}.Sprint(formattedResponse)
+	fmt.Println(coloredResponse)
+
+	return nil
 }
