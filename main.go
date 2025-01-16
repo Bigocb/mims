@@ -49,7 +49,7 @@ func main() {
 			}
 
 			var resp llm.Response
-			resp = llm.Query(request)
+			resp, _ = llm.Query(request)
 			interaction.PreviousResponse = resp
 			fmt.Printf("Summary: %s\n\n", resp.Summary)
 			fmt.Printf("Details: %s\n\n", resp.Details)
