@@ -103,7 +103,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					Query: m.textarea.Value(),
 				}
 				var resp llm.Response
-				resp = llm.Query(request)
+				resp, err := llm.Query(request)
+				if err != nil {
+					m.err = err
+				}
 				m.messages = append(m.messages, m.senderStyle.Render("Mim: ")+resp.Details)
 				m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			} else if strings.Contains(m.textarea.Value(), "Search:") {
