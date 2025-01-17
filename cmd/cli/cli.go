@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli/v3"
+	"jervis/core"
 	"jervis/data"
 	"jervis/llm"
 	"log"
@@ -103,9 +104,10 @@ func keep(ctx context.Context, c *cli.Command) error {
 	messageObject := data.MimsObject{
 		Key:         strconv.FormatInt(timeNow, 10),
 		Interaction: interaction,
+		Summary:     interaction.CurrentRequest,
 	}
 
-	if err := data.Put(&messageObject); err != nil {
+	if err := core.SaveHistory(messageObject); err != nil {
 		fmt.Print("bad put")
 	}
 
@@ -133,12 +135,13 @@ func ponder(ctx context.Context, c *cli.Command) error {
 // QueryHistory takes in a query string and search the bolt db for related saves
 func find(ctx context.Context, c *cli.Command) error {
 	updMessage := strings.ReplaceAll("question", "Search:", "")
-	var SearchResult data.Interaction
+	var SearchResult []data.MimsObject
 	var err error
-	SearchResult, err = data.Search(interaction.CurrentRequest)
+	SearchResult, err = core.SearchHistory(interaction)
 	if err != nil {
 		fmt.Println("Error searching chats about: ", updMessage, err)
 	}
-	fmt.Println("Here are the results: " + SearchResult.PreviousResponse.Details)
+	fmt.Println("Here are the results: ")
+	fmt.Println(SearchResult)
 	return nil
 }
