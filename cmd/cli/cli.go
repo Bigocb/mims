@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli/v3"
-	"jervis/core"
+	"jervis/data"
 	"jervis/llm"
 	"log"
 	"os"
+	"strings"
 )
 
 // interaction object for a given session
-var interaction core.Interaction
+var interaction data.Interaction
 
 // QueryLLM takes in a query string and sends to the LLM for processing.
 func QueryLLM(question string) (string, error) {
@@ -25,6 +26,19 @@ func QueryLLM(question string) (string, error) {
 		return "", fmt.Errorf("error querying LLM: %w", err)
 	}
 	return resp.Details, nil
+}
+
+// QueryHistory takes in a query string and search the bolt db for related saves
+func find(ctx context.Context, c *cli.Command) error {
+	updMessage := strings.ReplaceAll("question", "Search:", "")
+	var SearchResult data.Interaction
+	var err error
+	SearchResult, err = data.Search(os.Args[3])
+	if err != nil {
+		fmt.Println("Error searching chats about: ", updMessage, err)
+	}
+	fmt.Println("Here are the results: " + SearchResult.PreviousResponse.Details)
+	return nil
 }
 
 func main() {
@@ -69,6 +83,21 @@ func main() {
 				},
 				Category: "Storage",
 				Action:   keep,
+			},
+			&cli.Command{
+				Name:    "find",
+				Aliases: []string{""},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "topic",
+						Aliases:     []string{"t"},
+						Value:       "",
+						Usage:       "Enter what you want to find",
+						Destination: &interaction.CurrentRequest,
+					},
+				},
+				Category: "Storage",
+				Action:   find,
 			},
 		},
 	}
