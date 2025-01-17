@@ -16,7 +16,7 @@ import (
 func main() {
 
 	// interaction object for this session
-	var interaction core.Interaction
+	var interaction data.Interaction
 
 	fmt.Print("> ")
 	s := bufio.NewScanner(os.Stdin)
@@ -33,7 +33,7 @@ func main() {
 		core.ProcessUserInput(interaction)
 
 		if strings.Contains(s.Text(), "Add Context:") {
-			out, err := json.Marshal(interaction.SearchResult)
+			out, err := json.Marshal(interaction)
 			if err != nil {
 				fmt.Println("Error marshalling search result:", err)
 			}
@@ -61,10 +61,9 @@ func main() {
 		if strings.Contains(s.Text(), "Save:") {
 			timeNow := time.Now().Unix()
 
-			messageObject := data.MimsData{
-				Key:     strconv.FormatInt(timeNow, 10),
-				Summary: interaction.PreviousResponse.Summary,
-				Details: interaction.PreviousResponse.Details,
+			messageObject := data.MimsObject{
+				Key:         strconv.FormatInt(timeNow, 10),
+				Interaction: interaction,
 			}
 
 			if err := data.Put(&messageObject); err != nil {
