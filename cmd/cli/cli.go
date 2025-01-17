@@ -9,7 +9,9 @@ import (
 	"jervis/llm"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // interaction object for a given session
@@ -26,19 +28,6 @@ func QueryLLM(question string) (string, error) {
 		return "", fmt.Errorf("error querying LLM: %w", err)
 	}
 	return resp.Details, nil
-}
-
-// QueryHistory takes in a query string and search the bolt db for related saves
-func find(ctx context.Context, c *cli.Command) error {
-	updMessage := strings.ReplaceAll("question", "Search:", "")
-	var SearchResult data.Interaction
-	var err error
-	SearchResult, err = data.Search(os.Args[3])
-	if err != nil {
-		fmt.Println("Error searching chats about: ", updMessage, err)
-	}
-	fmt.Println("Here are the results: " + SearchResult.PreviousResponse.Details)
-	return nil
 }
 
 func main() {
@@ -109,6 +98,17 @@ func main() {
 
 func keep(ctx context.Context, c *cli.Command) error {
 	fmt.Print("hello:" + interaction.CurrentRequest)
+	timeNow := time.Now().Unix()
+
+	messageObject := data.MimsObject{
+		Key:         strconv.FormatInt(timeNow, 10),
+		Interaction: interaction,
+	}
+
+	if err := data.Put(&messageObject); err != nil {
+		fmt.Print("bad put")
+	}
+
 	return nil
 }
 
@@ -127,5 +127,18 @@ func ponder(ctx context.Context, c *cli.Command) error {
 	coloredResponse := text.Colors{text.FgBlue}.Sprint(formattedResponse)
 	fmt.Println(coloredResponse)
 
+	return nil
+}
+
+// QueryHistory takes in a query string and search the bolt db for related saves
+func find(ctx context.Context, c *cli.Command) error {
+	updMessage := strings.ReplaceAll("question", "Search:", "")
+	var SearchResult data.Interaction
+	var err error
+	SearchResult, err = data.Search(interaction.CurrentRequest)
+	if err != nil {
+		fmt.Println("Error searching chats about: ", updMessage, err)
+	}
+	fmt.Println("Here are the results: " + SearchResult.PreviousResponse.Details)
 	return nil
 }
