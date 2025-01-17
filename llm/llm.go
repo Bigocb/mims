@@ -15,8 +15,8 @@ import (
 
 // Response object to help standardize output from various LLM tools
 type Response struct {
-	Summary string
-	Details string
+	Summary string `storm:"index, inline"`
+	Details string `storm:"index, inline"`
 }
 
 type Request struct {
