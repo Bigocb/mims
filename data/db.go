@@ -26,6 +26,7 @@ type MimsObject struct {
 
 var log = utils.Log
 
+// Open a connection to the datavsse
 func Open(path string) (*storm.DB, error) {
 	db, err := storm.Open(path)
 	if err != nil {
@@ -36,45 +37,48 @@ func Open(path string) (*storm.DB, error) {
 	return db, nil
 }
 
+// Put takes in a MimsObject and saves it to our db
 func Put(message *MimsObject) error {
+	
+	// Open a database connection
 	db, err := Open("content.db")
 	if err != nil {
 		log.Error("Error opening database:", err)
 		return err
 	}
 
+	// Save our mims object
 	err = db.Save(message)
 	if err != nil {
 		log.Error("Error saving data to db:", err)
 		return err
 	}
 
-	var users []MimsObject
-	err = db.All(&users)
-	if err != nil {
-		fmt.Print("test")
-	}
-
+	// Close the db connection
 	defer db.Close()
+	
 	return nil
 }
 
+// Search takes in a string and returns a list of matching mins objects
 func Search(searchTerms string) ([]MimsObject, error) {
-	var messages []MimsObject
+	
+	// Open a DB connection
 	db, err := Open("content.db")
 	if err != nil {
 		log.Error("Error opening database:", err)
 		return messages, err
 	}
 
-	var users []MimsObject
-	err = db.All(&users)
-
-	err = db.Select(q.Re("Summary", "^.*"+searchTerms+".*$")).Find(&messages)
+	// Search the DB
+  var results []MimsObject
+	err = db.Select(q.Re("Summary", "^.*"+searchTerms+".*$")).Find(&results)
 	if err != nil {
 		log.Info("No results found for:", searchTerms)
-		return messages, err
+		return results, err
 	}
-
-	return messages, nil
+	
+	// Close the db connextion
+  defer db.Close()
+	return results, nil
 }
